@@ -1,9 +1,8 @@
-
-import {JWT_SECRET} from '@repo/backend-common/config'
+import { JWT_SECRET } from '@repo/backend-common/config'
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import { middleware } from './middleware';
-import {CreateUserSchema} from '@repo/common/types'
+import {CreateUserSchema ,SignInSchema ,CreateRoomSchema} from '@repo/common/types'
 const app = express();
 app.post('/signup',(req,res)=>{
     //dbCall
@@ -14,15 +13,19 @@ app.post('/signup',(req,res)=>{
         })
         return;
     }
-
     res.json({
         userId: "123"
     })
-
 })
-
-
 app.post('/login',(req,res)=>{
+   
+    const data = SignInSchema.safeParse(req.body);
+    if(!data.success){
+        res.status(400).json({
+            message: "Invalid data"
+        })
+        return;
+    }
     const userId =1;
     const token = jwt.sign({
         userId,
@@ -32,6 +35,13 @@ app.post('/login',(req,res)=>{
 })
 
 app.post('/room',middleware ,(req,res)=>{
+    const data =CreateRoomSchema.safeParse(req.body);
+    if(!data.success){
+        res.status(400).json({
+            message: "Invalid data"
+        })
+        return;
+    }
 
     //dbCall 
     res.json({
