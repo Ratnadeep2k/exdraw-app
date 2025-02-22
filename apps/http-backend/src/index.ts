@@ -36,7 +36,10 @@ app.post('/signup',async (req,res)=>{
         })
     }
 })
-app.post('/login',(req,res)=>{
+
+
+
+app.post('/login', async (req,res)=>{
    
     const data = SignInSchema.safeParse(req.body);
     if(!data.success){
@@ -45,12 +48,25 @@ app.post('/login',(req,res)=>{
         })
         return;
     }
-    const userId =1;
-    const token = jwt.sign({
-        userId,
+    const user = await prismaClient.user.findFirst({
+        where:{
+            email: data.data.username,
+            password : data.data.password
 
+        }
+    })
+    if(!user){
+        res.status(401).json({
+            message: "Invalid credentials"
+        })
+        return;
+    }
+    const token = jwt.sign({
+         userId : user?.id
     },JWT_SECRET)
-    res.json({token})
+    res.json({
+        token
+    })
 })
 
 app.post('/room',middleware ,(req,res)=>{
