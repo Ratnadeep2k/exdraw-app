@@ -6,21 +6,34 @@ import { middleware } from './middleware';
 import {CreateUserSchema ,SignInSchema ,CreateRoomSchema} from '@repo/common/types'
 import {prismaClient} from '@repo/db/client'
 const app = express();
-app.post('/signup',(req,res)=>{
+app.post('/signup',async (req,res)=>{
     //dbCall
-    const data =CreateUserSchema.safeParse(req.body);
-    if(!data.success){
+    const parshedData =CreateUserSchema.safeParse(req.body);
+    if(!parshedData.success){
         res.status(400).json({
-            message: "Invalid data"
+            message: "zod validation failed"
         })
         return;
     }
-    
-    
+    try{
+        const user = await prismaClient.user.create({
+            data:{
+                email:parshedData.data?.username,
+                password:parshedData.data.password,
+                name : parshedData.data.name
+            }
+        })
+        res.json({
+            userId: user.id
+        })
 
-    res.json({
-        userId: "123"
-    })
+
+    }
+    catch(e){
+        res.status(500).json({
+            message: "Username not unique"
+        })
+    }
 })
 app.post('/login',(req,res)=>{
    
