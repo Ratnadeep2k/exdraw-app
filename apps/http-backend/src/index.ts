@@ -6,8 +6,9 @@ import { middleware } from './middleware';
 import {CreateUserSchema ,SignInSchema ,CreateRoomSchema} from '@repo/common/types'
 import {prismaClient} from '@repo/db/client'
 const app = express();
+app.use(express.json());
+
 app.post('/signup',async (req,res)=>{
-    //dbCall
     const parshedData =CreateUserSchema.safeParse(req.body);
     if(!parshedData.success){
         res.status(400).json({
