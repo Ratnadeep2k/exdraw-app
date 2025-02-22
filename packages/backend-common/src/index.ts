@@ -1,1 +1,1 @@
- export const JWT_SECRET = 'thisisasecret'
+export const JWT_SECRET = 'thisisasecret'; // This is a secret key for JWT
