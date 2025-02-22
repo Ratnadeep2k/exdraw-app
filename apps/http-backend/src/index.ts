@@ -27,8 +27,6 @@ app.post('/signup',async (req,res)=>{
         res.json({
             userId: user.id
         })
-
-
     }
     catch(e){
         res.status(500).json({
@@ -36,9 +34,6 @@ app.post('/signup',async (req,res)=>{
         })
     }
 })
-
-
-
 app.post('/login', async (req,res)=>{
    
     const data = SignInSchema.safeParse(req.body);
@@ -52,7 +47,6 @@ app.post('/login', async (req,res)=>{
         where:{
             email: data.data.username,
             password : data.data.password
-
         }
     })
     if(!user){
@@ -69,19 +63,35 @@ app.post('/login', async (req,res)=>{
     })
 })
 
-app.post('/room',middleware ,(req,res)=>{
-    const data =CreateRoomSchema.safeParse(req.body);
-    if(!data.success){
+app.post('/room',middleware ,async (req,res)=>{
+    const parsedData =CreateRoomSchema.safeParse(req.body);
+    if(!parsedData.success){
         res.status(400).json({
             message: "Invalid data"
         })
         return;
     }
-
     //dbCall 
-    res.json({
-        roomId : 123
+    
+    //@ts-ignore : TODO :FIX THIS 
+    const userId = req.userId ;
+
+   try{
+    const room = await prismaClient.room.create({
+        data:{
+            slug: parsedData.data.name,
+            adminId: userId,
+        }
     })
+    res.json({
+        roomId: room.id,
+    })
+   }
+    catch(e){
+         res.status(500).json({
+              message: "Room name not unique"
+         })
+    }
 
 })
 
